@@ -1,0 +1,74 @@
+﻿version: '3'
+
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    networks:
+      app-net:
+        ipv4_address: 172.19.0.11
+    restart: always
+    volumes:
+      - mongo-data:/data/db
+    
+  phishing-simulation:
+    ports:
+      - "5296:8080"
+    build:
+      context: .
+      dockerfile: PhishingSimulation/Dockerfile
+    networks:
+      app-net:
+        ipv4_address: 172.19.0.9
+    depends_on:
+      - mongodb
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - MONGODB_URI=mongodb://mongodb:27017
+      - DB_NAME=phishing_simulation_db
+    restart: always
+    
+  phishing-attempt-mngmnt-ui:
+    ports:
+      - "80:80"
+    build:
+      context: .
+      dockerfile: phishing-attempt-mngmnt-ui/Dockerfile
+    env_file:
+      - phishing-attempt-mngmnt-ui/.env.production
+    networks:
+      app-net:
+        ipv4_address: 172.19.0.12
+    depends_on:
+      - phishing-attempt-mngmnt
+    restart: always
+  
+  phishing-attempt-mngmnt:
+    ports:
+      - "3000:3000"
+    build:
+      context: .
+      dockerfile: phishing-attempt-mngmnt/Dockerfile
+    env_file:
+      - phishing-attempt-mngmnt/.env
+    networks:
+      app-net:
+        ipv4_address: 172.19.0.10
+    depends_on:
+      - mongodb
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017
+      - DB_NAME=phishing_simulation_db
+    restart: always
+  
+volumes:
+  mongo-data: { }
+
+networks:
+  app-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.19.0.0/16
