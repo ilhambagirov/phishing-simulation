@@ -63,3 +63,11 @@ Update below email settings to send phishing emails:
 }
 ```
 
+
+MONGODB_URI = "mongodb://mongodb:27017"
+DB_NAME = "phishing_simulation_db"
+APP_PORT = 3000
+JWT_SECRET_KEY = "DCVW302BPUO79NAL8IFH"
+PHISHING_SIMULATION_ACCESS_KEY = "6SD5P0EXMLT2OGHQ89BZ"
+PHISHING_SIMULATION_BASE_URL="http://phishing-simulation:8080"
+
